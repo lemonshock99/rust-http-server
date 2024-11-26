@@ -6,9 +6,10 @@ use std::net::TcpListener;
 use std::io::Read;
 use crate::http::Request;
 // use std::str;
-
 use crate::http::Result;
 use crate::http::Method;
+use crate::http::Response;
+use crate::http::HttpStatus;
 
 #[derive(Debug)]
 pub struct Server {
@@ -48,14 +49,15 @@ impl Server {
             println!("{:#?}", request);
 
 
-            match request.method() {
+            let response = match request.method() {
                 Method::GET => match request.path().as_str(){
-                    "/" => {}
-                    "/hello" => {}
-                    _ => {}
-                }
-                _ => {}
-            }
+                    "/" => Response::new(HttpStatus::Ok,Some("home".to_string())),
+                    "/hello" => Response::new(HttpStatus::Ok,Some("hello".to_string())),
+                    _ => Response::new(HttpStatus::NotFound,None),
+                },
+                _ => Response::new(HttpStatus::NotFound,None),
+            };
+            response.send(&mut stream)?;
         }
 
 
